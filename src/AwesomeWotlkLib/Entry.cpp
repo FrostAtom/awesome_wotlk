@@ -1,4 +1,5 @@
 #include "NamePlates.h"
+#include "Misc.h"
 #include "Hooks.h"
 #include <Windows.h>
 #include <Detours/detours.h>
@@ -20,6 +21,7 @@ static void OnAttach()
     DetourTransactionBegin();
     Hooks::initialize();
     NamePlates::initialize();
+    Misc::initialize();
     DetourTransactionCommit();
 
     // Register base

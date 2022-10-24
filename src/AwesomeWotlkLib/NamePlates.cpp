@@ -30,12 +30,12 @@ static int getTokenId(guid_t guid)
 }
 
 
-static bool CVarHandler_NameplateDistance(Console::CVar*, const char*, const char* value, LPVOID)
+static int CVarHandler_NameplateDistance(Console::CVar*, const char*, const char* value, LPVOID)
 {
     double f = atof(value);
     f = f > 0.f ? f : 43.f;
     *(float*)0x00ADAA7C = (float)(f * f);
-    return true;
+    return 1;
 }
 
 static int C_NamePlate_GetNamePlates(lua_State* L)

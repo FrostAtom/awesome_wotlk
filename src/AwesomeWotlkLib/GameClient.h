@@ -10,6 +10,7 @@
 // Types
 struct lua_State;
 struct WorldFrame;
+struct Camera;
 struct Object;
 
 struct Frame {
@@ -87,7 +88,7 @@ inline int gc_snprintf(char* buf, size_t size, const char* fmt, ...)
 }
 
 namespace RCString {
-    inline uint32_t __stdcall hash(const char* str) { return ((decltype(&hash))0x0076F640)(str); }
+inline uint32_t __stdcall hash(const char* str) { return ((decltype(&hash))0x0076F640)(str); }
 }
 
 // ObjectMgr
@@ -131,35 +132,35 @@ inline void SetMouseoverByGuid(guid_t guid, guid_t prev) { return ((decltype(&Se
 }
 
 namespace Console {
-    enum CVarFlags : uint32_t {
-        CVarFlags_ReadOnly = 0x4,
-        CVarFlags_CheckTaint = 0x8,
-        CVarFlags_HideFromUser = 0x40,
-        CVarFlags_ReadOnlyForUser = 0x100,
+enum CVarFlags : uint32_t {
+    CVarFlags_ReadOnly = 0x4,
+    CVarFlags_CheckTaint = 0x8,
+    CVarFlags_HideFromUser = 0x40,
+    CVarFlags_ReadOnlyForUser = 0x100,
 
-    };
+};
 
-    struct CVar {
-        using Handler_t = bool (*)(CVar* cvar, const char* prevVal, const char* newVal, void* userData);
+struct CVar {
+    using Handler_t = int(*)(CVar* cvar, const char* prevVal, const char* newVal, void* userData);
 
-        uint32_t hash;
-        uint32_t gap4[4];
-        const char* name;
-        uint32_t field18;
-        CVarFlags flags;
-        uint32_t field20;
-        uint32_t field24;
-        const char* vStr;
-        uint32_t field2C[5];
-        uint32_t vBool;
-        uint32_t gap44[9];
-        Handler_t handler;
-        void* userData;
-    };
-    static_assert(sizeof(CVar) == 0x70);
+    uint32_t hash;
+    uint32_t gap4[4];
+    const char* name;
+    uint32_t field18;
+    CVarFlags flags;
+    uint32_t field20;
+    uint32_t field24;
+    const char* vStr;
+    uint32_t field2C[5];
+    uint32_t vBool;
+    uint32_t gap44[9];
+    Handler_t handler;
+    void* userData;
+};
+static_assert(sizeof(CVar) == 0x70);
 
-    inline CVar* RegisterCVar(const char* name, const char* desc, unsigned flags, const char* defaultVal, CVar::Handler_t callback, int a6, int a7, int a8, int a9) { return ((decltype(&RegisterCVar))0x00767FC0)(name, desc, flags, defaultVal, callback, a6, a7, a8, a9); };
-    inline CVar* GetCVar(const char* name) { return ((decltype(&GetCVar))0x00767460)(name); }
+inline CVar* RegisterCVar(const char* name, const char* desc, unsigned flags, const char* defaultVal, CVar::Handler_t callback, int a6, int a7, int a8, int a9) { return ((decltype(&RegisterCVar))0x00767FC0)(name, desc, flags, defaultVal, callback, a6, a7, a8, a9); };
+inline CVar* GetCVar(const char* name) { return ((decltype(&GetCVar))0x00767460)(name); }
 }
 
 inline lua_State* GetLuaState() { return ((decltype(&GetLuaState))0x00817DB0)(); }
@@ -167,72 +168,83 @@ inline int GetLuaRefErrorHandler() { return *(int*)0x00AF576C; }
 
 // CFrame
 namespace CFrame {
-    inline int __fastcall GetRefTable(Frame* frame) { return ((decltype(&GetRefTable))0x00488380)(frame); }
+inline int __fastcall GetRefTable(Frame* frame) { return ((decltype(&GetRefTable))0x00488380)(frame); }
 }
 
 // FrameScript
 namespace FrameScript {
-    struct Event {
-        uint32_t hash;
-        uint32_t gap4[4];
-        const char* name;
-        uint32_t gap18[12];
-        uint32_t field48;
-        uint32_t field4C;
-        uint32_t field50;
-    };
+struct Event {
+    uint32_t hash;
+    uint32_t gap4[4];
+    const char* name;
+    uint32_t gap18[12];
+    uint32_t field48;
+    uint32_t field4C;
+    uint32_t field50;
+};
 
-    struct EventList {
-        size_t reserve;
-        size_t size;
-        Event** buf;
-    };
+struct EventList {
+    size_t reserve;
+    size_t size;
+    Event** buf;
+};
 
-    struct UnkContainer;
+struct UnkContainer;
 
-    inline UnkContainer* GetUnkContainer() { return (UnkContainer*)0x00D3F7A8; }
-    inline Event* __fastcall FindEvent(UnkContainer* This, void* edx, const char* eventName) { return ((decltype(&FindEvent))0x004BC410)(This, edx, eventName); }
-    inline EventList* GetEventList() { return (EventList*)0x00D3F7D0; }
-    inline void FireEvent_inner(int eventId, lua_State* L, int nargs) { return ((decltype(&FireEvent_inner))0x0081AA00)(eventId, L, nargs); };
-    inline void vFireEvent(int eventId, const char* format, va_list args) { return ((decltype(&vFireEvent))0x0081AC90)(eventId, format, args); }
+inline UnkContainer* GetUnkContainer() { return (UnkContainer*)0x00D3F7A8; }
+inline Event* __fastcall FindEvent(UnkContainer* This, void* edx, const char* eventName) { return ((decltype(&FindEvent))0x004BC410)(This, edx, eventName); }
+inline EventList* GetEventList() { return (EventList*)0x00D3F7D0; }
+inline void FireEvent_inner(int eventId, lua_State* L, int nargs) { return ((decltype(&FireEvent_inner))0x0081AA00)(eventId, L, nargs); };
+inline void vFireEvent(int eventId, const char* format, va_list args) { return ((decltype(&vFireEvent))0x0081AC90)(eventId, format, args); }
 
-    inline int GetEventIdByName(const char* eventName)
-    {
-        EventList* eventList = GetEventList();
-        if (eventList->size == 0)
-            return -1;
-
-        uint32_t hash = RCString::hash(eventName);
-        for (size_t i = 0; i < eventList->size; i++) {
-            Event* event = eventList->buf[i];
-            if (event && event->hash == hash && (event->name == eventName || (strcmp(event->name, eventName) == 0)))
-                return i;
-        }
+inline int GetEventIdByName(const char* eventName)
+{
+    EventList* eventList = GetEventList();
+    if (eventList->size == 0)
         return -1;
+
+    uint32_t hash = RCString::hash(eventName);
+    for (size_t i = 0; i < eventList->size; i++) {
+        Event* event = eventList->buf[i];
+        if (event && event->hash == hash && (event->name == eventName || (strcmp(event->name, eventName) == 0)))
+            return i;
     }
-
-    inline const char* GetEventNameById(unsigned idx)
-    {
-        EventList* eventList = GetEventList();
-        if (eventList->size == 0 || eventList->size < idx)
-            return NULL;
-
-        Event* event = eventList->buf[idx];
-        return event ? event->name : NULL;
-    }
-
-    inline void FireEvent(const char* eventName, const char* format, ...)
-    {
-        int eventId = GetEventIdByName(eventName);
-        if (eventId == -1) return;
-
-        va_list args;
-        va_start(args, format);
-        vFireEvent(eventId, format, args);
-    }
+    return -1;
 }
 
-// WorldFrame
+inline const char* GetEventNameById(unsigned idx)
+{
+    EventList* eventList = GetEventList();
+    if (eventList->size == 0 || eventList->size < idx)
+        return NULL;
+
+    Event* event = eventList->buf[idx];
+    return event ? event->name : NULL;
+}
+
+inline void FireEvent(const char* eventName, const char* format, ...)
+{
+    int eventId = GetEventIdByName(eventName);
+    if (eventId == -1) return;
+
+    va_list args;
+    va_start(args, format);
+    vFireEvent(eventId, format, args);
+}
+}
+
+// WorldFrame & Camera
+struct CameraVtbl;
+
+struct Camera {
+    CameraVtbl* vmt;
+    uint32_t field4;
+    VecXYZ pos;
+    uint32_t gap14[11];
+    float fovInRadians;
+};
+
+inline Camera* GetActiveCamera() { return ((decltype(&GetActiveCamera))0x004F5960)(); }
 inline WorldFrame* GetWorldFrame() { return *(WorldFrame**)0x00B7436C; }
 inline int __fastcall WorldFrame_3Dto2D(WorldFrame* This, void* edx, VecXYZ* pos3d, VecXYZ* pos2d, uint32_t* flags) { return ((decltype(&WorldFrame_3Dto2D))0x004F6D20)(This, edx, pos3d, pos2d, flags); }
 inline void WorldFrame_PercToScreenPos(float x, float y, float* resX, float* resY)
