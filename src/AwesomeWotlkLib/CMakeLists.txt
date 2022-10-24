@@ -5,7 +5,7 @@ add_library(
 		"Entry.cpp"
 		
 		GameClient.h
- "LuaAPI.h" "LuaAPI.cpp" "NamePlates.h" "NamePlates.cpp")
+   "NamePlates.h" "NamePlates.cpp" "Hooks.h" "Hooks.cpp")
 
 target_include_directories(
 	${PROJECT_NAME} PRIVATE

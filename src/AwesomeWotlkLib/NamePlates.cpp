@@ -1,5 +1,6 @@
 #include "NamePlates.h"
 #include "GameClient.h"
+#include "Hooks.h"
 #include <Windows.h>
 #include <Detours/detours.h>
 #include <vector>
@@ -10,7 +11,32 @@
 #define NAME_PLATE_UNIT_REMOVED "NAME_PLATE_UNIT_REMOVED"
 
 static std::array<guid_t, 80> s_nameplateGuids;
-static Console::CVar* s_nameplatePlayer = NULL;
+static Console::CVar* s_cvar_nameplateDistance;
+
+static guid_t getTokenGuid(int id)
+{
+    if (id >= std::size(s_nameplateGuids))
+        return 0;
+    return s_nameplateGuids[id];
+}
+
+static int getTokenId(guid_t guid)
+{
+    for (size_t i = 0; i < std::size(s_nameplateGuids); i++) {
+        if (s_nameplateGuids[i] == guid)
+            return i;
+    }
+    return -1;
+}
+
+
+static bool CVarHandler_NameplateDistance(Console::CVar*, const char*, const char* value, LPVOID)
+{
+    double f = atof(value);
+    f = f > 0.f ? f : 43.f;
+    *(float*)0x00ADAA7C = (float)(f * f);
+    return true;
+}
 
 static int C_NamePlate_GetNamePlates(lua_State* L)
 {
@@ -39,15 +65,8 @@ static int C_NamePlate_GetNamePlateForUnit(lua_State* L)
     return 1;
 }
 
-static int lua_IsAwesomeWotlk(lua_State* L)
+static int lua_openlibnameplates(lua_State* L)
 {
-    lua_pushnumber(L, 1.f);
-    return 1;
-}
-
-static void OpenApi()
-{
-    lua_State* L = GetLuaState();
     luaL_Reg methods[] = {
         {"GetNamePlates", C_NamePlate_GetNamePlates},
         {"GetNamePlateForUnit", C_NamePlate_GetNamePlateForUnit},
@@ -61,23 +80,8 @@ static void OpenApi()
     lua_setglobal(L, "C_NamePlate");
 
     lua_newtable(L);
-    lua_setfield(L, LUA_REGISTRYINDEX, "C_NamePlate_Cache");
-
-    lua_pushcfunction(L, lua_IsAwesomeWotlk);
-    lua_setglobal(L, "IsAwesomeWotlk");
-}
-
-static void(*Lua_OpenFrameXMLApi_orig)() = (decltype(Lua_OpenFrameXMLApi_orig))0x00530F85;
-static void __declspec(naked) Lua_OpenFrameXMLApi_hk()
-{
-    __asm {
-        pushad;
-        pushfd;
-        call OpenApi;
-        popfd;
-        popad;
-        ret;
-    }
+    lua_setfield(L, LUA_REGISTRYINDEX, "C_NamePlate_Cache"); // TODO: implement table pools
+    return 0;
 }
 
 static void HandleNamePlateHide(Object* object)
@@ -114,29 +118,6 @@ static void HandleNamePlateCreate(Frame* frame)
     lua_rawgeti(L, LUA_REGISTRYINDEX, frame->luaRef);
     FrameScript::FireEvent_inner(FrameScript::GetEventIdByName(NAME_PLATE_CREATED), L, 2);
     lua_pop(L, 2);
-}
-
-static void (*Unit_GetNamePlateInfo_orig)() = (decltype(Unit_GetNamePlateInfo_orig))0x0072B0F7;
-static void __declspec(naked) Unit_GetNamePlateInfo_hk()
-{
-    // TODO
-}
-
-
-static bool CVarHandler_NameplateDistance(Console::CVar*, const char*, const char* value, LPVOID)
-{
-    double f = atof(value);
-    f = f > 0.f ? f : 43.f;
-    *(float*)0x00ADAA7C = (float)(f * f);
-    return true;
-}
-
-static void(*CVars_Initialize_orig)() = (decltype(CVars_Initialize_orig))0x00401B60;
-static void CVars_Initialize_hk()
-{
-    CVars_Initialize_orig();
-    Console::RegisterCVar("nameplateDistance", NULL, 1, "43", CVarHandler_NameplateDistance, 0, 0, 0, 0);
-    //Console::RegisterCVar("nameplatePlayer", NULL, 1, "1", NULL, 0, 0, 0, 0);
 }
 
 static void (__fastcall* NamePlate_Create_orig)(Frame* frame, void* edx, Frame* parent) = (decltype(NamePlate_Create_orig))0x0098F790;
@@ -214,66 +195,17 @@ static void __declspec(naked) Unit_dtor_hk()
     }
 }
 
-static void GetGuidByKeyword_bulk(const char** stackStr, guid_t* guid)
-{
-    if (strncmp(*stackStr, "nameplate", 9) == 0) {
-        *stackStr += 9;
-        size_t id = gc_atoi(stackStr) - 1;
-        if (id < std::size(s_nameplateGuids))
-            *guid = s_nameplateGuids[id];
-    }
-}
-
-static void(*GetGuidByKeyword_orig)() = (decltype(GetGuidByKeyword_orig))0x0060AFAA;
-static void __declspec(naked) GetGuidByKeyword_hk()
-{
-    __asm {
-        pushad;
-        pushfd;
-        push[ebp + 0xC];
-        lea eax, [ebp + 0x8];
-        push eax;
-        call GetGuidByKeyword_bulk;
-        add esp, 8;
-        popfd;
-        popad;
-
-        push 0x0060AFDB;
-        ret;
-    }
-}
-
-static char** (*GetKeywordsByGuid_orig)(guid_t* guid, size_t* size) = (decltype(GetKeywordsByGuid_orig))0x0060BB70;
-static char** GetKeywordsByGuid_hk(guid_t* guid, size_t* size)
-{
-    char** buf = GetKeywordsByGuid_orig(guid, size);
-
-    for (size_t i = 0; i < std::size(s_nameplateGuids) && *size < 5; i++) {
-        if (s_nameplateGuids[i] == *guid)
-            snprintf(buf[(*size)++], 32, "nameplate%d", i + 1);
-    }
-    return buf;
-}
-
-static void (*FrameScript_FillEvents_orig)(const char** list, size_t count) = (decltype(FrameScript_FillEvents_orig))0x0081B5F0;
-static void FrameScript_FillEvents_hk(const char** list, size_t count)
-{
-    std::vector<const char*> events(&list[0], &list[count]);
-    events.push_back(NAME_PLATE_CREATED);
-    events.push_back(NAME_PLATE_UNIT_ADDED);
-    events.push_back(NAME_PLATE_UNIT_REMOVED);
-    FrameScript_FillEvents_orig(events.data(), events.size());
-}
-
 void NamePlates::Initialize()
 {
-    DetourAttach(&(LPVOID&)Lua_OpenFrameXMLApi_orig, Lua_OpenFrameXMLApi_hk);
-    DetourAttach(&(LPVOID&)CVars_Initialize_orig, CVars_Initialize_hk);
+    Hooks::FrameXML::registerLuaLib(lua_openlibnameplates);
+    Hooks::FrameXML::registerEvent(NAME_PLATE_CREATED);
+    Hooks::FrameXML::registerEvent(NAME_PLATE_UNIT_ADDED);
+    Hooks::FrameXML::registerEvent(NAME_PLATE_UNIT_REMOVED);
+    Hooks::FrameXML::registerCVar(&s_cvar_nameplateDistance, "nameplateDistance", NULL, (Console::CVarFlags)1, "43", CVarHandler_NameplateDistance);
+    Hooks::FrameScript::registerToken("nameplate", getTokenGuid, getTokenId);
+
     DetourAttach(&(LPVOID&)Unit_ShowNamePlate_orig, Unit_ShowNamePlate_hk);
     DetourAttach(&(LPVOID&)Unit_HideNamePlate_orig, Unit_HideNamePlate_hk);
     DetourAttach(&(LPVOID&)HideAllNamePlates_orig, HideAllNamePlates_hk);
     DetourAttach(&(LPVOID&)Unit_dtor_orig, Unit_dtor_hk);
-    DetourAttach(&(LPVOID&)GetGuidByKeyword_orig, GetGuidByKeyword_hk);
-    DetourAttach(&(LPVOID&)GetKeywordsByGuid_orig, GetKeywordsByGuid_hk);
-    DetourAttach(&(LPVOID&)FrameScript_FillEvents_orig, FrameScript_FillEvents_hk);
 }
