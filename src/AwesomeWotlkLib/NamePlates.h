@@ -1,5 +1,5 @@
 #pragma once
 
 namespace NamePlates {
-void Initialize();
+void initialize();
 }

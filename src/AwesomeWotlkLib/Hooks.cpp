@@ -141,7 +141,7 @@ static char** GetKeywordsByGuid_hk(guid_t* guid, size_t* size)
     return buf;
 }
 
-void Hooks::Initialize()
+void Hooks::initialize()
 {
     DetourAttach(&(LPVOID&)CVars_Initialize_orig, CVars_Initialize_hk);
     DetourAttach(&(LPVOID&)FrameScript_FillEvents_orig, FrameScript_FillEvents_hk);

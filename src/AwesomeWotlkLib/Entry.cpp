@@ -18,8 +18,8 @@ static void OnAttach()
 
     // Initialize modules
     DetourTransactionBegin();
-    Hooks::Initialize();
-    NamePlates::Initialize();
+    Hooks::initialize();
+    NamePlates::initialize();
     DetourTransactionCommit();
 
     // Register base

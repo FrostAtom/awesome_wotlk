@@ -195,7 +195,7 @@ static void __declspec(naked) Unit_dtor_hk()
     }
 }
 
-void NamePlates::Initialize()
+void NamePlates::initialize()
 {
     Hooks::FrameXML::registerLuaLib(lua_openlibnameplates);
     Hooks::FrameXML::registerEvent(NAME_PLATE_CREATED);
