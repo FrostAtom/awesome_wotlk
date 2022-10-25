@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 #include <cstdint>
 #include <cstdarg>
 #include <functional>
@@ -53,6 +54,8 @@ enum ObjectFlags : uint32_t {
 };
 
 // Base
+inline HWND GetGameWindow() { return *(HWND*)0x00D41620; }
+
 namespace CGame {
     inline void __stdcall SetLastError(int code) { return ((decltype(&SetLastError))0x00771870)(code); }
 }

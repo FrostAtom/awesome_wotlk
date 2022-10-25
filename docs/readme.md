@@ -6,13 +6,14 @@
 ___
 ## Details
 > - BugFix: clipboard issue when non-english text becomes "???"
-> - Nameplates C-Lua API interface like retail, and even better<br>
 > - Abiliity to change Field of View
+> - Nameplates C-Lua API interface like retail, and even better<br>
+> - Other utility API (see docs)
 
 ## Installation
 1) Download latest [release](https://github.com/FrostAtom/awesome_wotlk/releases)
 2) Unpack files to root game folder
-3) Launch `AwesomeWotlkPatch.exe`, you should see a message
+3) Launch `AwesomeWotlkPatch.exe`, you should get a message
 4) To update just download and replace dll
 
 ## For suggestions

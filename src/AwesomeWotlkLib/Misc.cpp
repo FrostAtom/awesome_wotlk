@@ -1,13 +1,40 @@
 #include "Misc.h"
+#include "GameClient.h"
 #include "Hooks.h"
+#include "Utils.h"
 #include <Windows.h>
 #include <Detours/detours.h>
 #define M_PI           3.14159265358979323846
 #undef min
 #undef max
 
-Console::CVar* s_cvar_cameraFov = NULL;
+static Console::CVar* s_cvar_cameraFov = NULL;
 
+
+static int lua_FlashWindow(lua_State* L)
+{
+    HWND hwnd = GetGameWindow();
+    if (hwnd) FlashWindow(hwnd, FALSE);
+    return 0;
+}
+
+static int lua_CopyToClipboard(lua_State* L)
+{
+    const char* str = luaL_checkstring(L, 1);
+    if (str && str[0]) CopyToClipboardU8(str, NULL);
+    return 0;
+}
+
+static int lua_openmisclib(lua_State* L)
+{
+    lua_pushcfunction(L, lua_FlashWindow);
+    lua_setglobal(L, "FlashWindow");
+
+    lua_pushcfunction(L, lua_CopyToClipboard);
+    lua_setglobal(L, "CopyToClipboard");
+
+    return 0;
+}
 
 static double parseFov(const char* v) { return  M_PI / 200.f * double(std::max(std::min(gc_atoi(&v), 200), 1)); }
 
@@ -27,5 +54,7 @@ static void __fastcall Camera_Initialize_hk(Camera* self, void* edx, float a2, f
 void Misc::initialize()
 {
     Hooks::FrameXML::registerCVar(&s_cvar_cameraFov, "cameraFov", NULL, (Console::CVarFlags)1, "100", CVarHandler_cameraFov);
+    Hooks::FrameXML::registerLuaLib(lua_openmisclib);
+
     DetourAttach(&(LPVOID&)Camera_Initialize_orig, Camera_Initialize_hk);
 }
