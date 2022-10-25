@@ -24,7 +24,7 @@ PatchDetails s_patches[] = {
         "8BEC" // mov ebp, esp
         "E8" "A110F2FF" // call 0x00406D70
         "E9" "045BF2FF" // jmp 0x0040B7D8
-        "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" // int3 (15 times)
+        "CCCCCCCCCCCCCCCCCCCCCCCC" // int3 (12 times)
         "417765736F6D65576F746C6B4C69622E646C6C00" // AwesomeWotlkLib.dll
     },
     {
