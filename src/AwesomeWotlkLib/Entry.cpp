@@ -1,3 +1,4 @@
+#include "BugFixes.h"
 #include "NamePlates.h"
 #include "Misc.h"
 #include "Hooks.h"
@@ -20,6 +21,7 @@ static void OnAttach()
     // Initialize modules
     DetourTransactionBegin();
     Hooks::initialize();
+    BugFixes::initialize();
     NamePlates::initialize();
     Misc::initialize();
     DetourTransactionCommit();

@@ -5,7 +5,7 @@ add_library(
 		"Entry.cpp"
 		
 		GameClient.h
-   "NamePlates.h" "NamePlates.cpp" "Hooks.h" "Hooks.cpp" "Misc.h" "Misc.cpp")
+   "NamePlates.h" "NamePlates.cpp" "Hooks.h" "Hooks.cpp" "Misc.h" "Misc.cpp" "BugFixes.h" "BugFixes.cpp" )
 
 target_include_directories(
 	${PROJECT_NAME} PRIVATE

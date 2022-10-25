@@ -5,6 +5,7 @@
 
 ___
 ## Details
+> - BugFix: clipboard issue when non-english text becomes "???"
 > - Nameplates C-Lua API interface like retail, and even better<br>
 > - Abiliity to change Field of View
 
