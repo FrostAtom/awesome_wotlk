@@ -3,6 +3,7 @@ Backported C-Lua interfaces from retail
 
 ## C_NamePlate.GetNamePlateForUnit`API`
 Arguments: **unitId** `string`
+
 Returns: **namePlate**`frame`
 
 Get nameplates by unitId
@@ -12,6 +13,7 @@ frame = C_NamePlate.GetNamePlateForUnit("target")
 
 ## C_NamePlate.GetNamePlates`API`
 Arguments: `none`
+
 Returns: **namePlateList**`table`
 
 Get all visible nameplates
@@ -38,6 +40,7 @@ Notifies that a nameplate will be hidden
 
 ## nameplateDistance`CVar`
 Arguments: **distance**`number`
+
 Default: **43**
 
 Sets the display distance of nameplates in yards
@@ -46,30 +49,35 @@ Sets the display distance of nameplates in yards
 
 ## FlashWindow`API`
 Arguments: `none`
+
 Returns: `none`
 
 Starts flashing of game window icon in taskbar
 
 ## IsWindowFocused`API`
 Arguments: `none`
+
 Returns: `bool`
 
 Returns 1 if game window is focused, overtwice nil
 
 ## FocusWindow`API`
 Arguments: `none`
+
 Returns: `none`
 
 Raise game window
 
 ## CopyToClipboard`API`
 Arguments: **text**`string`
+
 Returns: `none`
 
 Copies text to clipboard
 
 ## cameraFov`CVar`
 Parameters: **value**`number`
+
 Default: **100**
 
 Сhanges the camera view area (fisheye effect), in range **1**-**200**
