@@ -18,6 +18,22 @@ static int lua_FlashWindow(lua_State* L)
     return 0;
 }
 
+static int lua_IsWindowFocused(lua_State* L)
+{
+    HWND hwnd = GetGameWindow();
+    if (!hwnd || GetForegroundWindow() != hwnd)
+        return 0;
+    lua_pushnumber(L, 1.f);
+    return 1;
+}
+
+static int lua_FocusWindow(lua_State* L)
+{
+    HWND hwnd = GetGameWindow();
+    if (hwnd) SetForegroundWindow(hwnd);
+    return 0;
+}
+
 static int lua_CopyToClipboard(lua_State* L)
 {
     const char* str = luaL_checkstring(L, 1);
@@ -27,11 +43,17 @@ static int lua_CopyToClipboard(lua_State* L)
 
 static int lua_openmisclib(lua_State* L)
 {
-    lua_pushcfunction(L, lua_FlashWindow);
-    lua_setglobal(L, "FlashWindow");
+    luaL_Reg funcs[] = {
+        { "FlashWindow", lua_FlashWindow },
+        { "IsWindowFocused", lua_IsWindowFocused },
+        { "FocusWindow", lua_FocusWindow },
+        { "CopyToClipboard", lua_CopyToClipboard },
+    };
 
-    lua_pushcfunction(L, lua_CopyToClipboard);
-    lua_setglobal(L, "CopyToClipboard");
+    for (const auto& [name, func] : funcs) {
+        lua_pushcfunction(L, func);
+        lua_setglobal(L, name);
+    }
 
     return 0;
 }

@@ -23,8 +23,10 @@ static void(*CVars_Initialize_orig)() = (decltype(CVars_Initialize_orig))0x0051D
 static void CVars_Initialize_hk()
 {
     CVars_Initialize_orig();
-    for (const auto& [dst, name, desc, flags, initialValue, func] : s_customCVars)
-        *dst = Console::RegisterCVar(name, desc, flags, initialValue, func, 0, 0, 0, 0);
+    for (const auto& [dst, name, desc, flags, initialValue, func] : s_customCVars) {
+        Console::CVar* cvar = Console::RegisterCVar(name, desc, flags, initialValue, func, 0, 0, 0, 0);
+        if (dst) *dst = cvar;
+    }
 }
 
 

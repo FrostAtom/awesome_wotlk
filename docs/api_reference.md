@@ -41,3 +41,35 @@ Arguments: **distance**`number`
 Default: **43**
 
 Sets the display distance of nameplates in yards
+
+# Misc
+
+## FlashWindow`API`
+Arguments: `none`
+Returns: `none`
+
+Starts flashing of game window icon in taskbar
+
+## IsWindowFocused`API`
+Arguments: `none`
+Returns: `bool`
+
+Returns 1 if game window is focused, overtwice nil
+
+## FocusWindow`API`
+Arguments: `none`
+Returns: `none`
+
+Raise game window
+
+## CopyToClipboard`API`
+Arguments: **text**`string`
+Returns: `none`
+
+Copies text to clipboard
+
+## cameraFov`CVar`
+Parameters: **value**`number`
+Default: **100**
+
+Сhanges the camera view area (fisheye effect), in range **1**-**200**
