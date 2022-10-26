@@ -129,8 +129,9 @@ static char** (*GetKeywordsByGuid_orig)(guid_t* guid, size_t* size) = (decltype(
 static char** GetKeywordsByGuid_hk(guid_t* guid, size_t* size)
 {
     char** buf = GetKeywordsByGuid_orig(guid, size);
+    if (!buf) return buf;
     for (auto& [token, conv] : s_customTokens) {
-        if (*size >= 5) break;
+        if (*size >= 8) break;
         if (conv.hasN) {
             int id = conv.getIdN(*guid);
             if (id >= 0)
