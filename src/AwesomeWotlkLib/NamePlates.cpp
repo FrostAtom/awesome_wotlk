@@ -40,6 +40,7 @@ static int CVarHandler_NameplateDistance(Console::CVar*, const char*, const char
 
 static int C_NamePlate_GetNamePlates(lua_State* L)
 {
+    lua_settop(L, 0);
     lua_getfield(L, LUA_REGISTRYINDEX, "C_NamePlate_Cache");
     lua_wipe(L, 1);
     for (size_t i = 0, id = 1; i < std::size(s_nameplateGuids); i++) {
