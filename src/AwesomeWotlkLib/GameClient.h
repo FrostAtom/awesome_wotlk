@@ -319,7 +319,7 @@ inline int lua_objlen(lua_State* L, int idx) { return ((decltype(&lua_objlen))0x
 inline int lua_type(lua_State* L, int idx) { return ((decltype(&lua_type))0x0084DEB0)(L, idx); }
 inline int lua_pcall(lua_State* L, int argn, int retn, int eh) { return ((decltype(&lua_pcall))0x0084EC50)(L, argn, retn, eh); }
 inline int lua_GetParamValue(lua_State* L, int idx, int default_) { return ((decltype(&lua_GetParamValue))0x00815500)(L, idx, default_); }
-inline void lua_createtable(lua_State* L, int pairn, int arrn) { return ((decltype(&lua_createtable))0x0084E6E0)(L, pairn, arrn); }
+inline void lua_createtable(lua_State* L, int narr, int nrec) { return ((decltype(&lua_createtable))0x0084E6E0)(L, narr, nrec); }
 
 inline void lua_wipe(lua_State* L, int idx)
 {

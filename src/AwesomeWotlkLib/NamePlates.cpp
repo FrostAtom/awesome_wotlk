@@ -29,6 +29,14 @@ static int getTokenId(guid_t guid)
     return -1;
 }
 
+static size_t nameplatesCount()
+{
+    size_t count = 0;;
+    for (guid_t guid : s_nameplateGuids)
+        if (guid)
+            count++;
+    return count;
+}
 
 static int CVarHandler_NameplateDistance(Console::CVar*, const char*, const char* value, LPVOID)
 {
@@ -40,9 +48,8 @@ static int CVarHandler_NameplateDistance(Console::CVar*, const char*, const char
 
 static int C_NamePlate_GetNamePlates(lua_State* L)
 {
-    lua_settop(L, 0);
-    lua_getfield(L, LUA_REGISTRYINDEX, "C_NamePlate_Cache");
-    lua_wipe(L, 1);
+    size_t count = nameplatesCount();
+    lua_createtable(L, 0, count);
     for (size_t i = 0, id = 1; i < std::size(s_nameplateGuids); i++) {
         if (guid_t guid = s_nameplateGuids[i]) {
             if (Object* unit = ObjectMgr::Get(s_nameplateGuids[i], ObjectFlags_Unit); unit && unit->nameplate) {
@@ -51,7 +58,6 @@ static int C_NamePlate_GetNamePlates(lua_State* L)
             }
         }
     }
-
     return 1;
 }
 
@@ -79,9 +85,6 @@ static int lua_openlibnameplates(lua_State* L)
         lua_setfield(L, -2, methods[i].name);
     }
     lua_setglobal(L, "C_NamePlate");
-
-    lua_newtable(L);
-    lua_setfield(L, LUA_REGISTRYINDEX, "C_NamePlate_Cache"); // TODO: implement table pools
     return 0;
 }
 
