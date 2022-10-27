@@ -119,16 +119,17 @@ static void HandleNamePlateCreate(Frame* frame)
 {
     lua_State* L = GetLuaState();
     lua_pushstring(L, NAME_PLATE_CREATED);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, frame->luaRef);
+    lua_pushframe(L, frame);
     FrameScript::FireEvent_inner(FrameScript::GetEventIdByName(NAME_PLATE_CREATED), L, 2);
     lua_pop(L, 2);
 }
 
-static void (__fastcall* NamePlate_Create_orig)(Frame* frame, void* edx, Frame* parent) = (decltype(NamePlate_Create_orig))0x0098F790;
-static void __fastcall NamePlate_Create_hk(Frame* frame, void* edx, Frame* parent)
+static Frame* (__fastcall* NamePlate_Create_orig)(Frame* frame, void* edx, Frame* parent) = (decltype(NamePlate_Create_orig))0x0098F790;
+static Frame* __fastcall NamePlate_Create_hk(Frame* frame, void* edx, Frame* parent)
 {
-    NamePlate_Create_orig(frame, edx, parent);
+    Frame* result = NamePlate_Create_orig(frame, edx, parent);
     HandleNamePlateCreate(frame);
+    return result;
 }
 
 static void(__fastcall* Unit_ShowNamePlate_orig)() = (decltype(Unit_ShowNamePlate_orig))0x00725766;
@@ -212,4 +213,5 @@ void NamePlates::initialize()
     DetourAttach(&(LPVOID&)Unit_HideNamePlate_orig, Unit_HideNamePlate_hk);
     DetourAttach(&(LPVOID&)HideAllNamePlates_orig, HideAllNamePlates_hk);
     DetourAttach(&(LPVOID&)Unit_dtor_orig, Unit_dtor_hk);
+    DetourAttach(&(LPVOID&)NamePlate_Create_orig, NamePlate_Create_hk);
 }
