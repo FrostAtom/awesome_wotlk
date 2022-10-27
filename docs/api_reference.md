@@ -28,12 +28,12 @@ Parameters: **namePlateBase**`frame`
 
 Fires when nameplate was created
 
-## NAME_PLATE_ADDED`Event`
+## NAME_PLATE_UNIT_ADDED`Event`
 Parameters: **unitId**`string`
 
 Notifies that a new nameplate appeared
 
-## NAME_PLATE_REMOVED`Event`
+## NAME_PLATE_UNIT_REMOVED`Event`
 Parameters: **unitId**`string`
 
 Notifies that a nameplate will be hidden
