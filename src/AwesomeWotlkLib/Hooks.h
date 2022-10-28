@@ -4,6 +4,8 @@
 
 namespace Hooks {
 
+using DummyCallback_t = void(*)();
+
 namespace FrameScript {
 using TokenGuidGetter = guid_t();
 using TokenNGuidGetter = guid_t(int);
@@ -23,7 +25,8 @@ void registerLuaLib(lua_CFunction func);
 }
 
 namespace GlueXML {
-void registerPostLoad(lua_CFunction func);
+void registerPostLoad(DummyCallback_t func);
+void registerCharEnum(DummyCallback_t func);
 }
 
 void initialize();

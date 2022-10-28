@@ -144,15 +144,13 @@ static char** GetKeywordsByGuid_hk(guid_t* guid, size_t* size)
     return buf;
 }
 
-static std::vector<lua_CFunction> s_glueXmlPostLoad;
-void Hooks::GlueXML::registerPostLoad(lua_CFunction func) { s_glueXmlPostLoad.push_back(func); }
-
+static std::vector<Hooks::DummyCallback_t> s_glueXmlPostLoad;
+void Hooks::GlueXML::registerPostLoad(DummyCallback_t func) { s_glueXmlPostLoad.push_back(func); }
 
 static void LoadGlueXML_bulk()
 {
-    lua_State* L = GetLuaState();
     for (auto func : s_glueXmlPostLoad)
-        func(L);
+        func();
 }
 
 static void (*LoadGlueXML_orig)() = (decltype(LoadGlueXML_orig))0x004DA9AC;
@@ -172,6 +170,33 @@ static void __declspec(naked) LoadGlueXML_hk()
     }
 }
 
+
+static std::vector<Hooks::DummyCallback_t> s_glueXmlCharEnum;
+void Hooks::GlueXML::registerCharEnum(DummyCallback_t func) { s_glueXmlCharEnum.push_back(func); }
+
+static void LoadCharacters_bulk()
+{
+    for (auto func : s_glueXmlCharEnum)
+        func();
+}
+
+static void (*LoadCharacters_orig)() = (decltype(LoadCharacters_orig))0x004E47E5;
+static void __declspec(naked) LoadCharacters_hk()
+{
+    __asm {
+        add esp, 8;
+        pop esi;
+
+        pushad;
+        pushfd;
+        call LoadCharacters_bulk;
+        popfd;
+        popad;
+
+        ret;
+    }
+}
+
 void Hooks::initialize()
 {
     DetourAttach(&(LPVOID&)CVars_Initialize_orig, CVars_Initialize_hk);
@@ -180,4 +205,5 @@ void Hooks::initialize()
     DetourAttach(&(LPVOID&)GetGuidByKeyword_orig, GetGuidByKeyword_hk);
     DetourAttach(&(LPVOID&)GetKeywordsByGuid_orig, GetKeywordsByGuid_hk);
     DetourAttach(&(LPVOID&)LoadGlueXML_orig, LoadGlueXML_hk);
+    DetourAttach(&(LPVOID&)LoadCharacters_orig, LoadCharacters_hk);
 }

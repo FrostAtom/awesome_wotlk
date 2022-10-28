@@ -7,8 +7,37 @@
 static std::vector<std::string> s_commandLine;
 
 
-static int lua_gluexml_postload(lua_State* L)
+static void gluexml_charenum()
 {
+    static bool s_once = false;
+    if (s_once) return;
+    s_once = true;
+
+    const char* character = NULL;
+    for (int i = 1; i < s_commandLine.size(); i++) {
+        if (strcmp(s_commandLine[i].c_str(), "-character") == 0) {
+            if ((++i) < s_commandLine.size())
+                character = s_commandLine[i].c_str();
+        }
+    }
+
+    if (character) {
+        LoginUI::CharVector* chars = LoginUI::GetChars();
+        for (int i = 0; i < chars->size; i++) {
+            if (strcmp(chars->buf[i].data.name, character) == 0) {
+                LoginUI::EnterWorld(i);
+                break;
+            }
+        }
+    }
+}
+
+static void gluexml_postload()
+{
+    static bool s_once = false;
+    if (s_once) return;
+    s_once = true;
+
     const char* login = NULL, *password = NULL;
     for (int i = 1; i < s_commandLine.size(); i++) {
         if (strcmp(s_commandLine[i].c_str(), "-login") == 0) {
@@ -20,7 +49,6 @@ static int lua_gluexml_postload(lua_State* L)
         }
     }
     if (login && password) NetClient::Login(login, password);
-    return 0;
 }
 
 void CommandLine::initialize()
@@ -30,10 +58,6 @@ void CommandLine::initialize()
     for (int i = 0; i < argc; i++)
         s_commandLine.emplace_back(u16tou8(argv[i]));
 
-    if (std::find(s_commandLine.begin(), s_commandLine.end(), "-break") != s_commandLine.end()) {
-        system("pause");
-        FreeConsole();
-    }
-
-    Hooks::GlueXML::registerPostLoad(lua_gluexml_postload);
+    Hooks::GlueXML::registerCharEnum(gluexml_charenum);
+    Hooks::GlueXML::registerPostLoad(gluexml_postload);
 }

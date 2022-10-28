@@ -15,6 +15,11 @@ static int lua_openawesomewotlk(lua_State* L)
 
 static void OnAttach()
 {
+#ifdef _DEBUG
+    system("pause");
+    FreeConsole();
+#endif
+
     // Invalid function pointer hack
     *(DWORD*)0x00D415B8 = 1;
     *(DWORD*)0x00D415BC = 0x7FFFFFFF;
