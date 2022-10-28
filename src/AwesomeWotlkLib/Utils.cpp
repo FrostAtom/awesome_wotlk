@@ -1,5 +1,16 @@
 #include "Utils.h"
 
+
+std::string u16tou8(std::wstring_view u16)
+{
+    int u8len = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, u16.data(), u16.size() + 1, NULL, 0, NULL, NULL);
+    if (!u8len) return {};
+    std::string u8;
+    u8.resize(u8len);
+    WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, u16.data(), u16.size() + 1, u8.data(), u8len, NULL, NULL);
+    return u8;
+}
+
 std::string GetFromClipboardU8(HWND hwnd)
 {
     if (!OpenClipboard(hwnd))

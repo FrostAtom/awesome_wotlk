@@ -1,4 +1,5 @@
 #include "BugFixes.h"
+#include "CommandLine.h"
 #include "NamePlates.h"
 #include "Misc.h"
 #include "Hooks.h"
@@ -18,10 +19,14 @@ static void OnAttach()
     *(DWORD*)0x00D415B8 = 1;
     *(DWORD*)0x00D415BC = 0x7FFFFFFF;
 
+    *(DWORD*)0x00B6AF54 = 1; // TOSAccepted = 1
+    *(DWORD*)0x00B6AF5C = 1; // EULAAccepted = 1
+
     // Initialize modules
     DetourTransactionBegin();
     Hooks::initialize();
     BugFixes::initialize();
+    CommandLine::initialize();
     NamePlates::initialize();
     Misc::initialize();
     DetourTransactionCommit();

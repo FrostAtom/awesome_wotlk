@@ -236,6 +236,11 @@ inline void FireEvent(const char* eventName, const char* format, ...)
 }
 }
 
+// NetClient
+namespace NetClient {
+inline void Login(const char* login, const char* password) { return ((decltype(&Login))0x004D8A30)(login, password); }
+}
+
 // WorldFrame & Camera
 struct CameraVtbl;
 

@@ -144,6 +144,34 @@ static char** GetKeywordsByGuid_hk(guid_t* guid, size_t* size)
     return buf;
 }
 
+static std::vector<lua_CFunction> s_glueXmlPostLoad;
+void Hooks::GlueXML::registerPostLoad(lua_CFunction func) { s_glueXmlPostLoad.push_back(func); }
+
+
+static void LoadGlueXML_bulk()
+{
+    lua_State* L = GetLuaState();
+    for (auto func : s_glueXmlPostLoad)
+        func(L);
+}
+
+static void (*LoadGlueXML_orig)() = (decltype(LoadGlueXML_orig))0x004DA9AC;
+static void __declspec(naked) LoadGlueXML_hk()
+{
+    __asm {
+        pop ebx;
+        mov esp, ebp;
+        pop ebp;
+
+        pushad;
+        pushfd;
+        call LoadGlueXML_bulk;
+        popfd;
+        popad;
+        ret;
+    }
+}
+
 void Hooks::initialize()
 {
     DetourAttach(&(LPVOID&)CVars_Initialize_orig, CVars_Initialize_hk);
@@ -151,4 +179,5 @@ void Hooks::initialize()
     DetourAttach(&(LPVOID&)Lua_OpenFrameXMLApi_orig, Lua_OpenFrameXMLApi_hk);
     DetourAttach(&(LPVOID&)GetGuidByKeyword_orig, GetGuidByKeyword_hk);
     DetourAttach(&(LPVOID&)GetKeywordsByGuid_orig, GetKeywordsByGuid_hk);
+    DetourAttach(&(LPVOID&)LoadGlueXML_orig, LoadGlueXML_hk);
 }
