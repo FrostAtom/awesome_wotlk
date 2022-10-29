@@ -98,8 +98,7 @@ static void GetGuidByKeyword_bulk(const char** stackStr, guid_t* guid)
             *stackStr += token.size();
             if (conv.hasN) {
                 int n = gc_atoi(stackStr);
-                if (n > 0)
-                    *guid = conv.getGuidN(n - 1);
+                *guid = n > 0 ? conv.getGuidN(n - 1) : 0;
             } else {
                 *guid = conv.getGuid();
             }

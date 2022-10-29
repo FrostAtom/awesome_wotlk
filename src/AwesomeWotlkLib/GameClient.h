@@ -340,6 +340,7 @@ inline void WorldFrame_PercToScreenPos(float x, float y, float* resX, float* res
 #define lua_getglobal(L,s)	lua_getfield(L, LUA_GLOBALSINDEX, (s))
 #define lua_tostring(L,i)	lua_tolstring(L, (i), NULL)
 #define lua_newtable(L) lua_createtable(L, 0, 0)
+#define luaL_checkstring(L, i) luaL_checklstring(L, i, NULL)
 
 #define LUA_TNONE		(-1)
 #define LUA_TNIL		0
@@ -365,7 +366,7 @@ typedef struct luaL_Reg {
 } luaL_Reg;
 
 inline void luaL_checktype(lua_State* L, int idx, int t) { return ((decltype(&luaL_checktype))0x0084F960)(L, idx, t); }
-inline const char* luaL_checkstring(lua_State* L, int idx) { return ((decltype(&luaL_checkstring))0x0084F9F0)(L, idx); }
+inline const char* luaL_checklstring(lua_State* L, int idx, size_t* len) { return ((decltype(&luaL_checklstring))0x0084F9F0)(L, idx, len); }
 inline void* lua_touserdata(lua_State* L, int idx) { return ((decltype(&lua_touserdata))0x0084E1C0)(L, idx); }
 inline void lua_pushstring(lua_State* L, const char* str) { return ((decltype(&lua_pushstring))0x0084E350)(L, str); }
 inline void lua_pushvalue(lua_State* L, int idx) { return ((decltype(&lua_pushvalue))0x0084DE50)(L, idx); }
