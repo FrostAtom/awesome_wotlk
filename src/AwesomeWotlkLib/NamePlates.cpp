@@ -41,7 +41,7 @@ static size_t nameplatesCount()
 static int CVarHandler_NameplateDistance(Console::CVar*, const char*, const char* value, LPVOID)
 {
     double f = atof(value);
-    f = f > 0.f ? f : 43.f;
+    f = f > 0.f ? f : 41.f;
     *(float*)0x00ADAA7C = (float)(f * f);
     return 1;
 }
