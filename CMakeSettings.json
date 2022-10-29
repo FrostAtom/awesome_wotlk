@@ -9,8 +9,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "variables": []
+      "inheritEnvironments": [ "msvc_x86" ]
     },
     {
       "name": "x86-Release",
@@ -21,8 +20,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "msvc_x86" ],
-      "variables": []
+      "inheritEnvironments": [ "msvc_x86" ]
     },
     {
       "name": "x86-Clang-Debug",
@@ -33,8 +31,7 @@
       "cmakeCommandArgs": "",
       "buildCommandArgs": "",
       "ctestCommandArgs": "",
-      "inheritEnvironments": [ "clang_cl_x86" ],
-      "variables": []
+      "inheritEnvironments": [ "clang_cl_x86" ]
     }
   ]
 }

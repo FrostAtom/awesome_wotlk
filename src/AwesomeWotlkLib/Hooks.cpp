@@ -90,6 +90,7 @@ static std::unordered_map<std::string, CustomTokenDetails> s_customTokens;
 void Hooks::FrameScript::registerToken(const char* token, TokenGuidGetter* getGuid, TokenIdGetter* getId) { s_customTokens[token] = { getGuid, getId }; }
 void Hooks::FrameScript::registerToken(const char* token, TokenNGuidGetter* getGuid, TokenIdNGetter* getId) { s_customTokens[token] = { getGuid, getId }; }
 
+static DWORD_PTR GetGuidByKeyword_jmpbackaddr = 0;
 static void GetGuidByKeyword_bulk(const char** stackStr, guid_t* guid)
 {
     for (auto& [token, conv] : s_customTokens) {
@@ -102,8 +103,11 @@ static void GetGuidByKeyword_bulk(const char** stackStr, guid_t* guid)
             } else {
                 *guid = conv.getGuid();
             }
+            GetGuidByKeyword_jmpbackaddr = 0x0060AD57;
+            return;
         }
     }
+    GetGuidByKeyword_jmpbackaddr = 0x0060AD44;
 }
 
 static void(*GetGuidByKeyword_orig)() = (decltype(GetGuidByKeyword_orig))0x0060AFAA;
@@ -120,7 +124,7 @@ static void __declspec(naked) GetGuidByKeyword_hk()
         popfd;
         popad;
 
-        push 0x0060AFDB;
+        push GetGuidByKeyword_jmpbackaddr;
         ret;
     }
 }
