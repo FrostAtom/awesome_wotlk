@@ -54,7 +54,7 @@ static int C_NamePlate_GetNamePlates(lua_State* L)
         if (guid_t guid = s_nameplateGuids[i]) {
             if (Object* unit = ObjectMgr::Get(s_nameplateGuids[i], ObjectFlags_Unit); unit && unit->nameplate) {
                 lua_pushframe(L, unit->nameplate);
-                lua_rawseti(L, 1, id++); 
+                lua_rawseti(L, -2, id++); 
             }
         }
     }
