@@ -3,6 +3,7 @@
 #include "NamePlates.h"
 #include "Misc.h"
 #include "Hooks.h"
+#include "Inventory.h"
 #include <Windows.h>
 #include <Detours/detours.h>
 
@@ -32,6 +33,7 @@ static void OnAttach()
     Hooks::initialize();
     BugFixes::initialize();
     CommandLine::initialize();
+    Inventory::initialize();
     NamePlates::initialize();
     Misc::initialize();
     DetourTransactionCommit();

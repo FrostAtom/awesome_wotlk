@@ -13,6 +13,8 @@ struct lua_State;
 struct WorldFrame;
 struct Camera;
 struct Object;
+struct Unit;
+struct Player;
 
 struct Frame {
     int gap[2];
@@ -41,12 +43,47 @@ struct ObjectEntry {
 };
 static_assert(sizeof(ObjectEntry) == 0x18);
 
+struct UnitEntry : ObjectEntry {
+    char gap[0x250 - sizeof(ObjectEntry)];
+};
+static_assert(sizeof(UnitEntry) == 0x250);
+
+struct PlayerQuest {
+    int a1, a2, a3, a4, a5;
+};
+static_assert(sizeof(PlayerQuest) == 0x14);
+
+struct PlayerVisibleItem {
+    int entryId;
+    int enchant;
+};
+static_assert(sizeof(PlayerVisibleItem) == 0x8);
+
+struct PlayerEntry : UnitEntry {
+    guid_t duelArbiter;
+    uint32_t flags;
+    uint32_t guildId, guildRank;
+    uint32_t bytes1, bytes2, bytes3;
+    uint32_t duelTeam;
+    uint32_t guildTimestamp;
+    PlayerQuest quests[25];
+    PlayerVisibleItem visibleItems[19];
+};
+
 struct Object {
     ObjectVtbl* vmt;
     int field4;
     ObjectEntry* entry;
     uint32_t gap[779];
     Frame* nameplate;
+};
+
+struct Unit : Object {
+    void* dummy;
+};
+
+struct Player : Unit {
+    void* dummy;
 };
 
 enum ObjectFlags : uint32_t {
@@ -367,6 +404,7 @@ typedef struct luaL_Reg {
 
 inline void luaL_checktype(lua_State* L, int idx, int t) { return ((decltype(&luaL_checktype))0x0084F960)(L, idx, t); }
 inline const char* luaL_checklstring(lua_State* L, int idx, size_t* len) { return ((decltype(&luaL_checklstring))0x0084F9F0)(L, idx, len); }
+inline lua_Number luaL_checknumber(lua_State* L, int idx) { return ((decltype(&luaL_checknumber))0x84FAB0)(L, idx); }
 inline void* lua_touserdata(lua_State* L, int idx) { return ((decltype(&lua_touserdata))0x0084E1C0)(L, idx); }
 inline void lua_pushstring(lua_State* L, const char* str) { return ((decltype(&lua_pushstring))0x0084E350)(L, str); }
 inline void lua_pushvalue(lua_State* L, int idx) { return ((decltype(&lua_pushvalue))0x0084DE50)(L, idx); }

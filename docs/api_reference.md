@@ -1,3 +1,5 @@
+[C_NamePlates](#c_nameplate) - [Inventory](#inventory) - [Misc](#misc)
+
 # C_NamePlate
 Backported C-Lua interfaces from retail
 
@@ -44,6 +46,15 @@ Arguments: **distance**`number`
 Default: **43**
 
 Sets the display distance of nameplates in yards
+
+# Inventory
+
+## GetInventoryItemTransmog`API`
+Arguments: **unitId**`string`, **slot**`number`
+
+Returns: **itemId**`number`, **enchantId**`number`
+
+Returns info about item transmogrification
 
 # Misc
 
