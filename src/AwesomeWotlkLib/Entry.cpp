@@ -7,10 +7,22 @@
 #include <Windows.h>
 #include <Detours/detours.h>
 
+
+static int lua_debugbreak(lua_State* L)
+{
+    if (IsDebuggerPresent())
+        DebugBreak();
+    return 0;
+}
+
 static int lua_openawesomewotlk(lua_State* L)
 {
     lua_pushnumber(L, 1.f);
     lua_setglobal(L, "AwesomeWotlk");
+#ifdef _DEBUG
+    lua_pushcfunction(L, lua_debugbreak);
+    lua_setglobal(L, "debugbreak");
+#endif
     return 0;
 }
 
