@@ -8,7 +8,7 @@ ___
 > - BugFix: clipboard issue when non-english text becomes "???"
 > - Abiliity to change Field of View
 > - Nameplates C-Lua API interface like retail, and even better<br>
-> - Auto Login through command line & shortcuts (usage: `Wow.exe -login LOGIN -password PASSWORD`)
+> - Auto Login through command line & shortcuts (usage: `Wow.exe -login LOGIN -password PASSWORD -realmlist "REALMLIST" -realmname "REALMNAME" `)
 > - Other utility API (see docs)
 
 ## Installation
