@@ -201,6 +201,11 @@ static_assert(sizeof(CVar) == 0x70);
 
 inline CVar* RegisterCVar(const char* name, const char* desc, unsigned flags, const char* defaultVal, CVar::Handler_t callback, int a6, int a7, int a8, int a9) { return ((decltype(&RegisterCVar))0x00767FC0)(name, desc, flags, defaultVal, callback, a6, a7, a8, a9); };
 inline CVar* GetCVar(const char* name) { return ((decltype(&GetCVar))0x00767460)(name); }
+inline CVar* FindCVar(const char* name) { return ((decltype(&FindCVar))0x00767440)(name); }
+inline char SetCVarValue(CVar* self, const char* value, int a3, int a4, int a5, int a6)
+{
+    return (((char(__thiscall*)(CVar*, const char*, int, int, int, int))0x007668C0))(self, value, a3, a4, a5, a6);
+}
 }
 
 inline lua_State* GetLuaState() { return ((decltype(&GetLuaState))0x00817DB0)(); }
