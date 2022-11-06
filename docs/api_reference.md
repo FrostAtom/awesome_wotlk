@@ -43,7 +43,7 @@ Notifies that a nameplate will be hidden
 ## nameplateDistance`CVar`
 Arguments: **distance**`number`
 
-Default: **43**
+Default: **41**
 
 Sets the display distance of nameplates in yards
 
