@@ -22,5 +22,4 @@ Join us at [Discord](https://discord.gg/NNnBTK5c8e) - [Telegram](https://t.me/wo
 <br><img src="https://raw.githubusercontent.com/FrostAtom/awesome_wotlk/main/docs/assets/wow_soft.jpg" width="148" height="148">
 
 ## 3rd party libraries
-- [vqking-eventpp](https://github.com/wqking/eventpp) - [license](https://github.com/wqking/eventpp/blob/master/license)
 - [microsoft-Detours](https://github.com/microsoft/Detours) - [license](https://github.com/microsoft/Detours/blob/6782fe6e6ab11ae34ae66182aa5a73b5fdbcd839/LICENSE.md)

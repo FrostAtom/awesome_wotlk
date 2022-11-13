@@ -1,6 +1,7 @@
 #include "Hooks.h"
 #include <Windows.h>
 #include <Detours/detours.h>
+#include <string>
 #include <vector>
 #include <unordered_map>
 

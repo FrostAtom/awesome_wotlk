@@ -1,6 +1,5 @@
 #pragma once
 #include "GameClient.h"
-#include <eventpp/callbacklist.h>
 
 namespace Hooks {
 
