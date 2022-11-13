@@ -147,14 +147,21 @@ static char** GetKeywordsByGuid_hk(guid_t* guid, size_t* size)
     return buf;
 }
 
+static std::vector<Hooks::DummyCallback_t> s_customOnUpdate;
+void Hooks::FrameScript::registerOnUpdate(DummyCallback_t func) { s_customOnUpdate.push_back(func); }
+
+static int(*FrameScript_FireOnUpdate_orig)(int a1, int a2, int a3, int a4) = (decltype(FrameScript_FireOnUpdate_orig))0x00495810;
+static int FrameScript_FireOnUpdate_hk(int a1, int a2, int a3, int a4)
+{
+    for (auto func : s_customOnUpdate)
+        func();
+    return FrameScript_FireOnUpdate_orig(a1, a2, a3, a4);
+}
+
 static std::vector<Hooks::DummyCallback_t> s_glueXmlPostLoad;
 void Hooks::GlueXML::registerPostLoad(DummyCallback_t func) { s_glueXmlPostLoad.push_back(func); }
 
-static void LoadGlueXML_bulk()
-{
-    for (auto func : s_glueXmlPostLoad)
-        func();
-}
+static void LoadGlueXML_bulk() { for (auto func : s_glueXmlPostLoad) func(); }
 
 static void (*LoadGlueXML_orig)() = (decltype(LoadGlueXML_orig))0x004DA9AC;
 static void __declspec(naked) LoadGlueXML_hk()
@@ -203,6 +210,7 @@ static void __declspec(naked) LoadCharacters_hk()
 void Hooks::initialize()
 {
     DetourAttach(&(LPVOID&)CVars_Initialize_orig, CVars_Initialize_hk);
+    DetourAttach(&(LPVOID&)FrameScript_FireOnUpdate_orig, FrameScript_FireOnUpdate_hk);
     DetourAttach(&(LPVOID&)FrameScript_FillEvents_orig, FrameScript_FillEvents_hk);
     DetourAttach(&(LPVOID&)Lua_OpenFrameXMLApi_orig, Lua_OpenFrameXMLApi_hk);
     DetourAttach(&(LPVOID&)GetGuidByKeyword_orig, GetGuidByKeyword_hk);

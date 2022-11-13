@@ -15,6 +15,8 @@ struct Camera;
 struct Object;
 struct Unit;
 struct Player;
+struct Status;
+struct XMLObject;
 
 struct Frame {
     int gap[2];
@@ -131,6 +133,8 @@ namespace RCString {
 inline uint32_t __stdcall hash(const char* str) { return ((decltype(&hash))0x0076F640)(str); }
 }
 
+inline bool IsInWorld() { return *(char*)0x00BD0792; }
+
 // ObjectMgr
 namespace ObjectMgr {
 
@@ -214,6 +218,7 @@ inline int GetLuaRefErrorHandler() { return *(int*)0x00AF576C; }
 // CFrame
 namespace CFrame {
 inline int __fastcall GetRefTable(Frame* frame) { return ((decltype(&GetRefTable))0x00488380)(frame); }
+inline Frame* Create(XMLObject* xml, Frame* parent, Status* status) { return ((decltype(&Create))0x00812FA0)(xml, parent, status); }
 }
 
 // FrameScript
@@ -366,12 +371,20 @@ inline void WorldFrame_PercToScreenPos(float x, float y, float* resX, float* res
     *resY = (y * (screenHeightAptitude * 1024.f)) / someVal;
 }
 
+// XML
+struct __declspec(novtable) XMLObject {
+    uint32_t gap0[0x38 / 4];
+
+    inline XMLObject(int a1, const char* parentName) { ((XMLObject * (__thiscall*)(XMLObject*, int, const char*))0x00814AD0)(this, a1, parentName); }
+    inline void setValue(const char* key, const char* value) { ((void(__thiscall*)(XMLObject*, const char*, const char*))0x814C40)(this, key, value); }
+};
 
 // Lua
 #define lua_pop(L,n)		lua_settop(L, -(n)-1)
 #define lua_isfunction(L,n)	(lua_type(L, (n)) == LUA_TFUNCTION)
 #define lua_istable(L,n)	(lua_type(L, (n)) == LUA_TTABLE)
 #define lua_islightuserdata(L,n)	(lua_type(L, (n)) == LUA_TLIGHTUSERDATA)
+#define lua_isuserdata(L,n) (lua_type(L,n) == LUA_TLIGHTUSERDATA) || (lua_type(L, n) == LUA_TUSERDATA)
 #define lua_isnil(L,n)		(lua_type(L, (n)) == LUA_TNIL)
 #define lua_isboolean(L,n)	(lua_type(L, (n)) == LUA_TBOOLEAN)
 #define lua_isthread(L,n)	(lua_type(L, (n)) == LUA_TTHREAD)
@@ -419,6 +432,7 @@ inline void lua_pushnil(lua_State* L) { return ((decltype(&lua_pushnil))0x0084E2
 inline void lua_rawseti(lua_State* L, int idx, int pos) { return ((decltype(&lua_rawseti))0x0084EA00)(L, idx, pos); }
 inline void lua_rawgeti(lua_State* L, int idx, int pos) { return ((decltype(&lua_rawgeti))0x0084E670)(L, idx, pos); }
 inline void lua_rawset(lua_State* L, int idx) { return ((decltype(&lua_rawset))0x0084E970)(L, idx); }
+inline void lua_rawget(lua_State* L, int idx) { return ((decltype(&lua_rawget))0x0084E600)(L, idx); }
 inline void lua_setfield(lua_State* L, int idx, const char* str) { return ((decltype(&lua_setfield))0x0084E900)(L, idx, str); }
 inline void lua_getfield(lua_State* L, int idx, const char* str) { return ((decltype(&lua_getfield))0x0084E590)(L, idx, str); }
 inline int lua_next(lua_State* L, int idx) { return ((decltype(&lua_next))0x0084EF50)(L, idx); }
@@ -430,6 +444,8 @@ inline int lua_type(lua_State* L, int idx) { return ((decltype(&lua_type))0x0084
 inline int lua_pcall(lua_State* L, int argn, int retn, int eh) { return ((decltype(&lua_pcall))0x0084EC50)(L, argn, retn, eh); }
 inline int lua_GetParamValue(lua_State* L, int idx, int default_) { return ((decltype(&lua_GetParamValue))0x00815500)(L, idx, default_); }
 inline void lua_createtable(lua_State* L, int narr, int nrec) { return ((decltype(&lua_createtable))0x0084E6E0)(L, narr, nrec); }
+inline void* lua_newuserdata(lua_State* L, size_t size) { return ((decltype(&lua_newuserdata))0x0084F0F0)(L, size); }
+inline int lua_setmetatable(lua_State* L, int idx) { return ((decltype(&lua_setmetatable))0x0084EA90)(L, idx); }
 
 inline void lua_wipe(lua_State* L, int idx)
 {
