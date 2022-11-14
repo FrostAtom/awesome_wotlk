@@ -6,27 +6,10 @@
 ___
 ## Details
 > - BugFix: clipboard issue when non-english text becomes "???"
-> - Auto Login (Through cmdline/shortcuts, Usage: `Wow.exe -login "LOGIN" -password "PASSWORD" -realmlist "REALMLIST" -realmname "REALMNAME" `)
-> - Changing cameras FOV
-> - New API:
-    - C_NamePlate.GetNamePlates
-    - C_NamePlate.GetNamePlateForUnit
-    - UnitIsControlled
-    - UnitIsDisarmed
-    - UnitIsSilenced
-    - GetInventoryItemTransmog
-    - FlashWindow
-    - IsWindowFocused
-    - FocusWindow
-    - CopyToClipboard
-> - New events:
-    - NAME_PLATE_CREATED
-    - NAME_PLATE_UNIT_ADDED
-    - NAME_PLATE_UNIT_REMOVED
-> - New CVars:
-    - nameplateDistance
-    - cameraFov<br>
-See [Docs](https://github.com/FrostAtom/awesome_wotlk/blob/main/docs/api_reference.md) for details
+> - Abiliity to change Field of View
+> - Nameplates C-Lua API interface like retail, and even better<br>
+> - Auto Login through command line & shortcuts (usage: `Wow.exe -login LOGIN -password PASSWORD -realmlist "REALMLIST" -realmname "REALMNAME" `)
+> - Other utility API (see docs)
 
 ## Installation
 1) Download latest [release](https://github.com/FrostAtom/awesome_wotlk/releases)
