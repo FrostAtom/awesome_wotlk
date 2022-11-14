@@ -1,4 +1,4 @@
-[C_NamePlates](#c_nameplate) - [Inventory](#inventory) - [Misc](#misc)
+[C_NamePlates](#c_nameplate) - [Unit](#unit) - [Inventory](#inventory) - [Misc](#misc)
 
 # C_NamePlate
 Backported C-Lua interfaces from retail
@@ -46,6 +46,30 @@ Arguments: **distance**`number`
 Default: **41**
 
 Sets the display distance of nameplates in yards
+
+# Unit
+
+## UnitIsControlled`API`
+Arguments: **unitId**`string`
+
+Returns: **isControlled**`bool`
+
+Returns true if unit being hard control
+
+## UnitIsDisarmed`API`
+Arguments: **unitId**`string`
+
+Returns: **isDisarmed**`bool`
+
+Returns true if unit is disarmed
+
+
+## UnitIsSilenced`API`
+Arguments: **unitId**`string`
+
+Returns: **isSilenced**`bool`
+
+Returns true if unit is silenced
 
 # Inventory
 

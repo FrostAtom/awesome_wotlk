@@ -45,8 +45,75 @@ struct ObjectEntry {
 };
 static_assert(sizeof(ObjectEntry) == 0x18);
 
+enum UnitFlags : uint32_t {
+    UNIT_FLAG_SERVER_CONTROLLED = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
+    UNIT_FLAG_NON_ATTACKABLE = 0x00000002,           // not attackable, set when creature starts to cast spells with SPELL_EFFECT_SPAWN and cast time, removed when spell hits caster, original name is UNIT_FLAG_SPAWNING. Rename when it will be removed from all scripts
+    UNIT_FLAG_REMOVE_CLIENT_CONTROL = 0x00000004,           // This is a legacy flag used to disable movement player's movement while controlling other units, SMSG_CLIENT_CONTROL replaces this functionality clientside now. CONFUSED and FLEEING flags have the same effect on client movement asDISABLE_MOVE_CONTROL in addition to preventing spell casts/autoattack (they all allow climbing steeper hills and emotes while moving)
+    UNIT_FLAG_PLAYER_CONTROLLED = 0x00000008,           // controlled by player, use _IMMUNE_TO_PC instead of _IMMUNE_TO_NPC
+    UNIT_FLAG_RENAME = 0x00000010,
+    UNIT_FLAG_PREPARATION = 0x00000020,           // don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP
+    UNIT_FLAG_UNK_6 = 0x00000040,
+    UNIT_FLAG_NOT_ATTACKABLE_1 = 0x00000080,           // ?? (UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_NOT_ATTACKABLE_1) is NON_PVP_ATTACKABLE
+    UNIT_FLAG_IMMUNE_TO_PC = 0x00000100,           // disables combat/assistance with PlayerCharacters (PC) - see Unit::IsValidAttackTarget, Unit::IsValidAssistTarget
+    UNIT_FLAG_IMMUNE_TO_NPC = 0x00000200,           // disables combat/assistance with NonPlayerCharacters (NPC) - see Unit::IsValidAttackTarget, Unit::IsValidAssistTarget
+    UNIT_FLAG_LOOTING = 0x00000400,           // loot animation
+    UNIT_FLAG_PET_IN_COMBAT = 0x00000800,           // on player pets: whether the pet is chasing a target to attack || on other units: whether any of the unit's minions is in combat
+    UNIT_FLAG_PVP_ENABLING = 0x00001000,           // changed in 3.0.3, now UNIT_BYTES_2_OFFSET_PVP_FLAG from UNIT_FIELD_BYTES_2
+    UNIT_FLAG_SILENCED = 0x00002000,           // silenced, 2.1.1
+    UNIT_FLAG_CANT_SWIM = 0x00004000,           // TITLE Can't Swim
+    UNIT_FLAG_CAN_SWIM = 0x00008000,           // TITLE Can Swim DESCRIPTION shows swim animation in water
+    UNIT_FLAG_NON_ATTACKABLE_2 = 0x00010000,           // removes attackable icon, if on yourself, cannot assist self but can cast TARGET_SELF spells - added by SPELL_AURA_MOD_UNATTACKABLE
+    UNIT_FLAG_PACIFIED = 0x00020000,           // 3.0.3 ok
+    UNIT_FLAG_STUNNED = 0x00040000,           // 3.0.3 ok
+    UNIT_FLAG_IN_COMBAT = 0x00080000,
+    UNIT_FLAG_ON_TAXI = 0x00100000,           // disable casting at client side spell not allowed by taxi flight (mounted?), probably used with 0x4 flag
+    UNIT_FLAG_DISARMED = 0x00200000,           // 3.0.3, disable melee spells casting..., "Required melee weapon" added to melee spells tooltip.
+    UNIT_FLAG_CONFUSED = 0x00400000,
+    UNIT_FLAG_FLEEING = 0x00800000,
+    UNIT_FLAG_POSSESSED = 0x01000000,           // under direct client control by a player (possess or vehicle)
+    UNIT_FLAG_UNINTERACTIBLE = 0x02000000,
+    UNIT_FLAG_SKINNABLE = 0x04000000,
+    UNIT_FLAG_MOUNT = 0x08000000,
+    UNIT_FLAG_UNK_28 = 0x10000000,
+    UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT = 0x20000000,   // Prevent automatically playing emotes from parsing chat text, for example "lol" in /say, ending message with ? or !, or using /yell
+    UNIT_FLAG_SHEATHE = 0x40000000,
+    UNIT_FLAG_IMMUNE = 0x80000000,           // Immune to damage
+
+    UNIT_FLAG_DISALLOWED = (UNIT_FLAG_SERVER_CONTROLLED | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL |
+    UNIT_FLAG_PLAYER_CONTROLLED | UNIT_FLAG_RENAME | UNIT_FLAG_PREPARATION | /* UNIT_FLAG_UNK_6 | */
+        UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_LOOTING | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_PVP_ENABLING |
+        UNIT_FLAG_SILENCED | UNIT_FLAG_NON_ATTACKABLE_2 | UNIT_FLAG_PACIFIED | UNIT_FLAG_STUNNED |
+        UNIT_FLAG_IN_COMBAT | UNIT_FLAG_ON_TAXI | UNIT_FLAG_DISARMED | UNIT_FLAG_CONFUSED | UNIT_FLAG_FLEEING |
+        UNIT_FLAG_POSSESSED | UNIT_FLAG_SKINNABLE | UNIT_FLAG_MOUNT | UNIT_FLAG_UNK_28 |
+        UNIT_FLAG_PREVENT_EMOTES_FROM_CHAT_TEXT | UNIT_FLAG_SHEATHE | UNIT_FLAG_IMMUNE), // SKIP
+
+    UNIT_FLAG_ALLOWED = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED) // SKIP
+};
+
 struct UnitEntry : ObjectEntry {
-    char gap[0x250 - sizeof(ObjectEntry)];
+    guid_t charm;
+    guid_t summon;
+    guid_t critter;
+    guid_t charmedBy;
+    guid_t summonedBy;
+    guid_t createdBy;
+    guid_t target;
+    guid_t channelObject;
+    uint32_t channelSpell;
+    uint32_t bytes0;
+    uint32_t health;
+    uint32_t power[7];
+    uint32_t maxHealth;
+    uint32_t maxPower[7];
+    uint32_t powerRegenFlatModifier[7];
+    uint32_t powerRegenInterruptedFlatModifier[7];
+    uint32_t level;
+    uint32_t factionTemplate;
+    uint32_t virtualItemSlotId[3];
+    uint32_t flags;
+    uint32_t flags2;
+
+    char gap[0x15C];
 };
 static_assert(sizeof(UnitEntry) == 0x250);
 
