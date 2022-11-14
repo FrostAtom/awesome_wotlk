@@ -3,6 +3,7 @@
 #include "Hooks.h"
 #include <Windows.h>
 #include <Detours/detours.h>
+#include <algorithm>
 #include <vector>
 #include <cstring>
 #define NAME_PLATE_CREATED "NAME_PLATE_CREATED"
@@ -14,6 +15,7 @@ enum NamePlateFlag_ {
     NamePlateFlag_Null = 0,
     NamePlateFlag_Created = (1 << 0),
     NamePlateFlag_Visible = (1 << 1),
+    NamePlateFlag_CreatedAndVisible = NamePlateFlag_Created | NamePlateFlag_Visible,
 };
 
 struct NamePlateEntry {
@@ -84,7 +86,7 @@ static int getTokenId(guid_t guid)
     NamePlateVars& vars = lua_findorcreatevars(GetLuaState());
     for (size_t i = 0; i < vars.nameplates.size(); i++) {
         NamePlateEntry& entry = vars.nameplates[i];
-        if ((entry.flags & NamePlateFlag_Visible) && entry.guid == guid)
+        if ((entry.flags & NamePlateFlag_CreatedAndVisible) == NamePlateFlag_CreatedAndVisible && entry.guid == guid)
             return i;
     }
     return -1;
@@ -143,9 +145,16 @@ static void onUpdateCallback()
 {
     if (!IsInWorld()) return;
 
+    static std::vector<std::tuple<Frame*, guid_t, float>> s_plateSort;
+
     lua_State* L = GetLuaState();
     NamePlateVars& vars = lua_findorcreatevars(L);
-    ObjectMgr::EnumObjects([&vars](guid_t guid) -> bool {
+
+    Player* player = ObjectMgr::GetPlayer();
+    VecXYZ posPlayer;
+    if (player) player->ToUnit()->vmt->GetPosition(player->ToUnit(), &posPlayer);
+
+    ObjectMgr::EnumObjects([&vars, player, &posPlayer](guid_t guid) -> bool {
         Unit* unit = (Unit*)ObjectMgr::Get(guid, ObjectFlags_Unit);
         if (!unit || !unit->nameplate) return true;
         auto it = std::find_if(vars.nameplates.begin(), vars.nameplates.end(), [nameplate = unit->nameplate](const NamePlateEntry& entry) {
@@ -163,8 +172,31 @@ static void onUpdateCallback()
             }
             it->updateId = vars.updateId;
         }
+
+        if (player) {
+            VecXYZ unitPos;
+            unit->vmt->GetPosition(unit, &unitPos);
+            s_plateSort.push_back({ unit->nameplate, guid, posPlayer.distance(unitPos) });
+        }
+        
         return true;
     });
+
+    if (!s_plateSort.empty()) {
+        std::sort(s_plateSort.begin(), s_plateSort.end(), [targetGuid = ObjectMgr::GetTargetGuid()](auto& a1, auto& a2) {
+            auto& [frame1, guid1, distance1] = a1;
+            auto& [frame2, guid2, distance2] = a2;
+            if (guid1 == targetGuid) return false;
+            if (guid2 == targetGuid) return true;
+            return distance1 > distance2;
+        });
+
+        int level = 0;
+        for (auto& entry : s_plateSort)
+            CFrame::SetFrameLevel(std::get<0>(entry), level++, 1);
+
+        s_plateSort.clear();
+    }
 
     for (size_t i = 0; i < vars.nameplates.size(); i++) {
         NamePlateEntry& entry = vars.nameplates[i];
@@ -196,6 +228,16 @@ static void onUpdateCallback()
     vars.updateId++;
 }
 
+LPVOID PatchNamePlateLevelUpdate_orig = (LPVOID)0x0098E9F9;
+void __declspec(naked) PatchNamePlateLevelUpdate_hk()
+{
+    __asm {
+        push edi;
+        push 0x0098EA27;
+        ret;
+    }
+}
+
 void NamePlates::initialize()
 {
     Hooks::FrameXML::registerLuaLib(lua_openlibnameplates);
@@ -205,4 +247,6 @@ void NamePlates::initialize()
     Hooks::FrameXML::registerCVar(&s_cvar_nameplateDistance, "nameplateDistance", NULL, (Console::CVarFlags)1, "43", CVarHandler_NameplateDistance);
     Hooks::FrameScript::registerToken("nameplate", getTokenGuid, getTokenId);
     Hooks::FrameScript::registerOnUpdate(onUpdateCallback);
+
+    DetourAttach(&(LPVOID&)PatchNamePlateLevelUpdate_orig, PatchNamePlateLevelUpdate_hk);
 }

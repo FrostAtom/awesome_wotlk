@@ -12,38 +12,34 @@
 struct lua_State;
 struct WorldFrame;
 struct Camera;
-struct Object;
-struct Unit;
-struct Player;
 struct Status;
+struct Frame;
 struct XMLObject;
-
-struct Frame {
-    int gap[2];
-    int luaRef;
-};
-
+struct Object;
+struct ObjectVtbl;
+struct ObjectEntry;
+struct Unit;
+struct UnitVtbl;
+struct UnitEntry;
+struct Player;
+struct PlayerVtbl;
+struct PlayerEntry;
 using guid_t = uint64_t;
 using lua_Number = double;
 
 template <typename T> struct Vec2D { T x, y; };
 template <typename T> struct Vec3D { T x, y, z; };
 template <typename T> struct Vec4D { T x, y, z, o; };
-using VecXYZ = Vec3D<float>;
+struct VecXYZ : Vec3D<float> {
 
-struct ObjectVtbl {
-    void* field0[8];
-    void(__thiscall* GetHeadPosition)(Object* self, VecXYZ* pos);
-};
+    inline VecXYZ operator-(const VecXYZ& r) { return { x - r.x, y - r.y, z - r.z }; }
 
-struct ObjectEntry {
-    guid_t guid;
-    int type;
-    int entry;
-    float scaleX;
-    int padding;
+    inline float distance(const VecXYZ& other)
+    {
+        VecXYZ diff = (*this) - other;
+        return std::sqrtf(std::powf(diff.x, 2) + std::powf(diff.y, 2) + std::powf(diff.z, 2));
+    }
 };
-static_assert(sizeof(ObjectEntry) == 0x18);
 
 enum UnitFlags : uint32_t {
     UNIT_FLAG_SERVER_CONTROLLED = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
@@ -90,6 +86,15 @@ enum UnitFlags : uint32_t {
     UNIT_FLAG_ALLOWED = (0xFFFFFFFF & ~UNIT_FLAG_DISALLOWED) // SKIP
 };
 
+struct ObjectEntry {
+    guid_t guid;
+    int type;
+    int entry;
+    float scaleX;
+    int padding;
+};
+static_assert(sizeof(ObjectEntry) == 0x18);
+
 struct UnitEntry : ObjectEntry {
     guid_t charm;
     guid_t summon;
@@ -129,6 +134,7 @@ struct PlayerVisibleItem {
 static_assert(sizeof(PlayerVisibleItem) == 0x8);
 
 struct PlayerEntry : UnitEntry {
+    UnitEntry unit;
     guid_t duelArbiter;
     uint32_t flags;
     uint32_t guildId, guildRank;
@@ -139,20 +145,37 @@ struct PlayerEntry : UnitEntry {
     PlayerVisibleItem visibleItems[19];
 };
 
+struct ObjectVtbl {};
+
+struct UnitVtbl {
+    DWORD gap0[11];
+    void(__thiscall* GetPosition)(Unit* self, VecXYZ* pos);
+};
+
+struct PlayerVtbl {};
+
 struct Object {
     ObjectVtbl* vmt;
     int field4;
     ObjectEntry* entry;
+};
+
+struct Unit {
+    UnitVtbl* vmt;
+    int field4;
+    UnitEntry* entry;
     uint32_t gap[779];
     Frame* nameplate;
+
+    inline Object* ToObject() { return (Object*)this; }
 };
 
-struct Unit : Object {
-    void* dummy;
-};
+struct Player {
+    PlayerVtbl* vmt;
+    int field4;
+    PlayerEntry* entry;
 
-struct Player : Unit {
-    void* dummy;
+    inline Unit* ToUnit() { return (Unit*)this; }
 };
 
 enum ObjectFlags : uint32_t {
@@ -220,6 +243,7 @@ inline bool EnumObjects(EnumVisibleObject_func_t func)
     return EnumObjects_internal(&Wrapper::foo, (void*)&func);
 };
 
+inline Player* GetPlayer() { return ((decltype(&GetPlayer))0x004038F0)(); }
 inline Object* Get(guid_t guid, ObjectFlags flags) { return ((Object*(*)(guid_t, ObjectFlags))0x004D4DB0)(guid, flags); }
 inline void Guid2HexString(guid_t guid, char* buf) { return ((decltype(&Guid2HexString))0x0074D0D0)(guid, buf); }
 inline guid_t HexString2Guid(const char* str) { return ((decltype(&HexString2Guid))0x0074D120)(str); }
@@ -239,6 +263,7 @@ inline Object* Get(const char* str, ObjectFlags flags) { return Get(String2Guid(
 inline int UnitRightClickByGuid(guid_t guid) { return ((decltype(&UnitRightClickByGuid))0x005277B0)(guid); }
 inline int UnitLeftClickByGuid(guid_t guid) { return ((decltype(&UnitLeftClickByGuid))0x005274F0)(guid); }
 inline void SetMouseoverByGuid(guid_t guid, guid_t prev) { return ((decltype(&SetMouseoverByGuid))0x0051F790)(guid, prev); }
+inline guid_t GetTargetGuid() { return *(guid_t*)0x00BD07B0; }
 
 }
 
@@ -284,8 +309,9 @@ inline int GetLuaRefErrorHandler() { return *(int*)0x00AF576C; }
 
 // CFrame
 namespace CFrame {
-inline int __fastcall GetRefTable(Frame* frame) { return ((decltype(&GetRefTable))0x00488380)(frame); }
+inline int GetRefTable(Frame* frame) { return ((int(__thiscall*)(Frame*))0x00488380)(frame); }
 inline Frame* Create(XMLObject* xml, Frame* parent, Status* status) { return ((decltype(&Create))0x00812FA0)(xml, parent, status); }
+inline void SetFrameLevel(Frame* self, int level, int a3) { ((void(__thiscall*)(Frame*, int, int))0x004910A0)(self, level, a3); }
 }
 
 // FrameScript

@@ -5,10 +5,8 @@
 
 static int lua_UnitIsControlled(lua_State* L)
 {
-    const char* unit = luaL_checkstring(L, 1);
-    Object* object = ObjectMgr::Get(unit, ObjectFlags_Unit);
-    if (!object) return 0;
-    if (!(((UnitEntry*)object->entry)->flags & (UNIT_FLAG_FLEEING | UNIT_FLAG_CONFUSED | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED)))
+    Unit* unit = (Unit*)ObjectMgr::Get(luaL_checkstring(L, 1), ObjectFlags_Unit);
+    if (!unit || !(unit->entry->flags & (UNIT_FLAG_FLEEING | UNIT_FLAG_CONFUSED | UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED)))
         return 0;
     lua_pushnumber(L, 1);
     return 1;
@@ -16,10 +14,8 @@ static int lua_UnitIsControlled(lua_State* L)
 
 static int lua_UnitIsDisarmed(lua_State* L)
 {
-    const char* unit = luaL_checkstring(L, 1);
-    Object* object = ObjectMgr::Get(unit, ObjectFlags_Unit);
-    if (!object) return 0;
-    if (!(((UnitEntry*)object->entry)->flags & UNIT_FLAG_DISARMED))
+    Unit* unit = (Unit*)ObjectMgr::Get(luaL_checkstring(L, 1), ObjectFlags_Unit);
+    if (!unit || !(unit->entry->flags & UNIT_FLAG_DISARMED))
         return 0;
     lua_pushnumber(L, 1);
     return 1;
@@ -27,10 +23,8 @@ static int lua_UnitIsDisarmed(lua_State* L)
 
 static int lua_UnitIsSilenced(lua_State* L)
 {
-    const char* unit = luaL_checkstring(L, 1);
-    Object* object = ObjectMgr::Get(unit, ObjectFlags_Unit);
-    if (!object) return 0;
-    if (!(((UnitEntry*)object->entry)->flags & UNIT_FLAG_SILENCED))
+    Unit* unit = (Unit*)ObjectMgr::Get(luaL_checkstring(L, 1), ObjectFlags_Unit);
+    if (!unit || !(unit->entry->flags & UNIT_FLAG_SILENCED))
         return 0;
     lua_pushnumber(L, 1);
     return 1;
