@@ -191,7 +191,7 @@ static void onUpdateCallback()
             return distance1 > distance2;
         });
 
-        int level = 0;
+        int level = 10;
         for (auto& entry : s_plateSort)
             CFrame::SetFrameLevel(std::get<0>(entry), level++, 1);
 
