@@ -220,6 +220,7 @@ static void onUpdateCallback()
                 char token[16];
                 snprintf(token, std::size(token), "nameplate%d", i + 1);
                 FrameScript::FireEvent(NAME_PLATE_UNIT_REMOVED, "%s", token);
+                entry.guid = 0;
                 entry.flags &= ~NamePlateFlag_Visible;
             }
         }
